@@ -1,0 +1,527 @@
+unit uService.Produto;
+
+interface
+  uses
+  System.SysUtils, FireDAC.Comp.Client, uModel.Classes, uDM;
+
+type
+  TProdutoService = class
+    private
+    public
+      function Salvar(Produto: TProduto; Conexao: TFDConnection): Boolean;
+      function Atualizar(Produto: TProduto; Conexao: TFDConnection): Boolean;
+      function RetornarProduto(IDProduto : Integer): TProduto;
+      function RetornaNumeroMovimentacao(IDProduto : Integer; Conexao: TFDConnection): Integer;
+      function Deletar(IDProduto : Integer; Conexao : TFDConnection): Boolean;
+      function SalvarInfoAdicional(ObjetoAdd : TObject; Tabela : Integer; Conexao: TFDConnection): Boolean;
+      function DeletarInfoAdicional(IDdoItem : Integer; Tabela : Integer; Conexao : TFDConnection): Boolean;
+      function RetornaNumeroProdutosInfoAdicional(IDdoItem : Integer; Tabela: Integer; Conexao : TFDConnection): Integer;
+  end;
+implementation
+
+  function TProdutoService.Salvar(Produto: Tproduto; Conexao: TFDConnection): Boolean;
+    var
+      qrSalvar: TFDQuery;
+      ColAtivo: string;
+    begin
+      if Produto.Ativo then
+        begin
+          ColAtivo := 'A'
+        end
+      else
+        begin
+          ColAtivo := 'D'
+        end;
+
+      qrSalvar := TFDQuery.Create(Nil);
+
+      try
+        qrSalvar.Connection := Conexao;
+        qrSalvar.SQL.Text :='''
+        Insert into Produtos (NOME, ID_UNIDADE, PRECO_CUSTO, PRECO_VENDA, QUANTIDADE, ID_CAT, ID_MARCA, ATIVO, ID_FORN)
+        VALUES (:pNome, :pIDUnidMed, :pPrecoCusto, :pPrecoVenda, :pQuantidade, :pIDCategoria, :pIDMarca, :pAtivo, :pIDFornecedor);
+        ''';
+
+        Conexao.StartTransaction;
+        try
+
+          qrSalvar.ParamByName('pNome').AsString := Produto.Nome;
+          qrSalvar.ParamByName('pPrecoCusto').AsCurrency := Produto.PrecoCusto;
+          qrSalvar.ParamByName('pPrecoVenda').AsCurrency := Produto.PrecoVenda;
+          qrSalvar.ParamByName('pQuantidade').AsFloat := Produto.Quantidade;
+          qrSalvar.ParamByName('pAtivo').AsString := ColAtivo;
+          qrSalvar.ParamByName('pIDUnidMed').AsInteger := Produto.UnidadeMedida.ID;
+          qrSalvar.ParamByName('pIDCategoria').AsInteger := Produto.Categoria.ID;
+          qrSalvar.ParamByName('pIDMarca').AsInteger := Produto.Marca.ID;
+          qrSalvar.ParamByName('pIDFornecedor').AsInteger := Produto.Fornecedor.ID;
+
+          qrSalvar.ExecSQL;
+          Conexao.Commit;
+          Result := True;
+        except
+          Conexao.Rollback;
+          Result := False;
+        end;
+      finally
+        qrSalvar.Free;
+      end;
+    end;
+
+  function TProdutoService.Atualizar(Produto: Tproduto; Conexao: TFDConnection): Boolean;
+    var
+      qrAtualizar: TFDQuery;
+      ColAtivo: string;
+    begin
+      if Produto.Ativo then
+        begin
+          ColAtivo := 'A'
+        end
+      else
+        begin
+          ColAtivo := 'D'
+        end;
+
+      qrAtualizar := TFDQuery.Create(Nil);
+      try
+        try
+
+          qrAtualizar.Connection := Conexao;
+          qrAtualizar.SQL.Text := '''
+          UPDATE PRODUTOS
+          SET
+          NOME = :pNome,
+          ID_UNIDADE = :pIDUnidMed,
+          PRECO_CUSTO = :pPrecoCusto,
+          PRECO_VENDA = :pPrecoVenda,
+          QUANTIDADE = :pQuantidade,
+          ID_CAT =  :pIDCategoria,
+          ID_MARCA = :pIDMarca,
+          ATIVO = :pAtivo,
+          ID_FORN = :pIDFornecedor
+          WHERE ID = :pID;
+          ''';
+
+          qrAtualizar.ParamByName('pID').AsInteger := Produto.ID;
+          qrAtualizar.ParamByName('pNome').AsString := Produto.Nome;
+          qrAtualizar.ParamByName('pPrecoCusto').AsCurrency := Produto.PrecoCusto;
+          qrAtualizar.ParamByName('pPrecoVenda').AsCurrency := Produto.PrecoVenda;
+          qrAtualizar.ParamByName('pQuantidade').AsFloat := Produto.Quantidade;
+          qrAtualizar.ParamByName('pAtivo').AsString := ColAtivo;
+          qrAtualizar.ParamByName('pIDUnidMed').AsInteger := Produto.UnidadeMedida.ID;
+          qrAtualizar.ParamByName('pIDCategoria').AsInteger := Produto.Categoria.ID;
+          qrAtualizar.ParamByName('pIDMarca').AsInteger := Produto.Marca.ID;
+          qrAtualizar.ParamByName('pIDFornecedor').AsInteger := Produto.Fornecedor.ID;
+
+
+          qrAtualizar.ExecSQL;
+          Result := True;
+        except
+          Result := False;
+        end;
+      finally
+        qrAtualizar.Free;
+      end;
+    end;
+
+  function TProdutoService.RetornarProduto(IDProduto : Integer): TProduto;
+    var
+      qrRretornoProd: TFDQuery;
+      FProduto: TProduto;
+    begin
+      qrRretornoProd :=  TFDQuery.Create(nil);
+      try
+        qrRretornoProd.Connection := dmPrincipal.FDConnection1;
+        qrRretornoProd.sql.Text := dmPrincipal.qrRetonaProdMontar.SQL.Text;
+        qrRretornoProd.ParamByName('pID').AsInteger := IDProduto;
+        qrRretornoProd.Open;
+
+
+        FProduto := TProduto.Create;
+
+        FProduto.ID := qrRretornoProd.FieldByName('IDProduto').AsInteger;
+        FProduto.Nome := qrRretornoProd.FieldByName('NomeProduto').AsString;
+        FProduto.PrecoCusto := qrRretornoProd.FieldByName('PrecoCustoProduto').AsCurrency;
+        FProduto.PrecoVenda := qrRretornoProd.FieldByName('PrecoVendaProduto').AsCurrency;
+        FProduto.Quantidade := qrRretornoProd.FieldByName('QuantidadeProduto').AsFloat;
+
+        if qrRretornoProd.FieldByName('AtivoProduto').AsString = 'A' then
+          FProduto.Ativo := True
+        else
+          FProduto.Ativo := False;
+
+        FProduto.UnidadeMedida.ID := qrRretornoProd.FieldByName('IDUnidMed').AsInteger;
+        FProduto.UnidadeMedida.Sigla := qrRretornoProd.FieldByName('SiglaUnidMed').AsString;
+        FProduto.UnidadeMedida.Descricao := qrRretornoProd.FieldByName('DescricaoUnidMed').AsString;
+
+        FProduto.Categoria.ID := qrRretornoProd.FieldByName('IDCategoria').AsInteger;
+        FProduto.Categoria.Nome := qrRretornoProd.FieldByName('NomeCategoria').AsString;
+
+        FProduto.Marca.ID := qrRretornoProd.FieldByName('IDMarca').AsInteger;
+        FProduto.Marca.Nome := qrRretornoProd.FieldByName('NomeMarca').AsString;
+
+        FProduto.Fornecedor.ID := qrRretornoProd.FieldByName('IDFornecedor').AsInteger;
+        FProduto.Fornecedor.Nome := qrRretornoProd.FieldByName('NomeFornecedor').AsString;
+        FProduto.Fornecedor.Localizacao := qrRretornoProd.FieldByName('EnderecoFornecedor').AsString;
+        FProduto.Fornecedor.CNPJ := qrRretornoProd.FieldByName('CNPJFornecedor').AsString;
+
+        Result := FProduto;
+      finally
+        qrRretornoProd.free;
+      end;
+
+    end;
+
+  function TProdutoService.RetornaNumeroMovimentacao(IDProduto : Integer; Conexao: TFDConnection): Integer;
+    var
+      qrNumMov: TFDQuery;
+    begin
+      qrNumMov := TFDQuery.Create(nil);
+      try
+        qrNumMov.Connection := Conexao;
+        qrNumMov.SQL.Text := '''
+        SELECT COUNT(ID_PRODUTO) as NUMMOV from MOVIMENTACAO WHERE ID_PRODUTO = :pIDProd
+        ''';
+        qrNumMov.ParamByName('pIDProd').AsInteger := IDProduto;
+        qrNumMov.Open;
+
+        Result := qrNumMov.FieldByName('NUMMOV').AsInteger;
+      finally
+        qrNumMov.Free;
+      end;
+    end;
+
+  function TProdutoService.Deletar(IDProduto : Integer; Conexao : TFDConnection): Boolean;
+    var
+      qrDeletar: TFDQuery;
+    begin
+      qrDeletar := TFDQuery.Create(nil);
+      Conexao.StartTransaction;
+      try
+        try
+          qrDeletar.Connection := Conexao;
+          qrDeletar.SQL.Text := '''
+          DELETE FROM PRODUTOS
+          WHERE ID = :pIDProd
+          ''';
+          qrDeletar.ParamByName('pIDProd').AsInteger := IDProduto;
+          qrDeletar.ExecSQL;
+          Conexao.Commit;
+          Result := True;
+        except
+          Conexao.Rollback;
+          Result := False
+        end;
+      finally
+        qrDeletar.Free;
+      end;
+    end;
+
+  function TProdutoService.SalvarInfoAdicional(ObjetoAdd: TObject; Tabela: Integer; Conexao: TFDConnection): Boolean;
+    var
+      qrSalvar: TFDQuery;
+    begin
+      qrSalvar := TFDQuery.Create(Nil);
+
+      case Tabela of
+        0:
+          begin
+            try
+              qrSalvar.Connection := Conexao;
+              qrSalvar.SQL.Text :='''
+              Insert into UNIDADE_MEDIDA (SIGLA, DESCRICAO)
+              VALUES (:pSigla, :pDescricao);
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrSalvar.ParamByName('pSigla').AsString := TUnidadeMedida(ObjetoAdd).Sigla;
+                qrSalvar.ParamByName('pDescricao').AsString := TUnidadeMedida(ObjetoAdd).Descricao;
+                qrSalvar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrSalvar.Free;
+            end;
+          end;
+        1:
+          begin
+            try
+              qrSalvar.Connection := Conexao;
+              qrSalvar.SQL.Text :='''
+              Insert into CATEGORIA (NOME)
+              VALUES (:pNome);
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrSalvar.ParamByName('pNome').AsString := TCategoria(ObjetoAdd).Nome;
+                qrSalvar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrSalvar.Free;
+            end;
+          end;
+        2:
+          begin
+            try
+              qrSalvar.Connection := Conexao;
+              qrSalvar.SQL.Text :='''
+              Insert into MARCA (NOME)
+              VALUES (:pNome);
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrSalvar.ParamByName('pNome').AsString := TMarca(ObjetoAdd).Nome;
+                qrSalvar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrSalvar.Free;
+            end;
+          end;
+        3:
+          begin
+            try
+              qrSalvar.Connection := Conexao;
+              qrSalvar.SQL.Text :='''
+              Insert into FORNECEDOR (NOME,ENDERECO,CNPJ)
+              VALUES (:pNome,:pEndereco,:pCNPJ);
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrSalvar.ParamByName('pNome').AsString := TFornecedor(ObjetoAdd).Nome;
+                qrSalvar.ParamByName('pEndereco').AsString := TFornecedor(ObjetoAdd).Localizacao;
+                qrSalvar.ParamByName('pCNPJ').AsString := TFornecedor(ObjetoAdd).CNPJ;
+                qrSalvar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrSalvar.Free;
+            end;
+          end;
+      end;
+    end;
+
+  function TProdutoService.DeletarInfoAdicional(IDdoItem : Integer; Tabela : Integer; Conexao : TFDConnection): Boolean;
+    var
+      qrDeletar: TFDQuery;
+    begin
+      qrDeletar := TFDQuery.Create(Nil);
+
+      case Tabela of
+        0:
+          begin
+            try
+              qrDeletar.Connection := Conexao;
+              qrDeletar.SQL.Text :='''
+              DELETE FROM UNIDADE_MEDIDA
+              WHERE ID := :pID
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrDeletar.ParamByName('pID').AsInteger := IDdoItem;
+                qrDeletar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrDeletar.Free;
+            end;
+          end;
+        1:
+          begin
+            try
+              qrDeletar.Connection := Conexao;
+              qrDeletar.SQL.Text :='''
+              DELETE FROM CATEGORIA
+              WHERE ID := :pID
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrDeletar.ParamByName('pID').AsInteger := IDdoItem;
+                qrDeletar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrDeletar.Free;
+            end;
+          end;
+        2:
+          begin
+            try
+              qrDeletar.Connection := Conexao;
+              qrDeletar.SQL.Text :='''
+              DELETE FROM MARCA
+              WHERE ID := :pID
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrDeletar.ParamByName('pID').AsInteger := IDdoItem;
+                qrDeletar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrDeletar.Free;
+            end;
+          end;
+        3:
+          begin
+            try
+              qrDeletar.Connection := Conexao;
+              qrDeletar.SQL.Text :='''
+              DELETE FROM FORNECEDOR
+              WHERE ID := :pID
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrDeletar.ParamByName('pID').AsInteger := IDdoItem;
+                qrDeletar.ExecSQL;
+                Conexao.Commit;
+                Result := True;
+              except
+                Conexao.Rollback;
+                Result := False;
+              end;
+            finally
+              qrDeletar.Free;
+            end;
+          end;
+      end;
+    end;
+
+  function TProdutoService.RetornaNumeroProdutosInfoAdicional(IDdoItem : Integer; Tabela: Integer; Conexao : TFDConnection): Integer;
+     var
+      qrNumProd: TFDQuery;
+    begin
+      qrNumProd := TFDQuery.Create(Nil);
+
+      case Tabela of
+        0:
+          begin
+            try
+              qrNumProd.Connection := Conexao;
+              qrNumProd.SQL.Text :='''
+              SELECT COUNT(ID_UNIDADE) as Contador FROM PRODUTOS p
+              LEFT JOIN UNIDADE_MEDIDA un on un.ID = p.ID_UNIDADE
+              WHERE un.ID = :pID;
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrNumProd.ParamByName('pID').AsInteger := IDdoItem;
+                qrNumProd.Open;
+                Conexao.Commit;
+                Result := qrNumProd.FieldByName('Contador').AsInteger;
+              except
+                Conexao.Rollback;
+              end;
+            finally
+              qrNumProd.Free;
+            end;
+          end;
+        1:
+          begin
+            try
+              qrNumProd.Connection := Conexao;
+              qrNumProd.SQL.Text :='''
+              SELECT COUNT(ID_CAT) as Contador FROM PRODUTOS p
+              LEFT JOIN CATEGORIA c on c.ID = p.ID_CAT
+              WHERE c.ID = :pID;
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrNumProd.ParamByName('pID').AsInteger := IDdoItem;
+                qrNumProd.Open;
+                Conexao.Commit;
+                Result := qrNumProd.FieldByName('Contador').AsInteger;
+              except
+                Conexao.Rollback;
+              end;
+            finally
+              qrNumProd.Free;
+            end;
+          end;
+        2:
+          begin
+            try
+              qrNumProd.Connection := Conexao;
+              qrNumProd.SQL.Text :='''
+              SELECT COUNT(ID_MARCA) as Contador FROM PRODUTOS p
+              LEFT JOIN MARCA m on m.ID = p.ID_MARCA
+              WHERE m.ID = :pID;
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrNumProd.ParamByName('pID').AsInteger := IDdoItem;
+                qrNumProd.Open;
+                Conexao.Commit;
+                Result := qrNumProd.FieldByName('Contador').AsInteger;
+              except
+                Conexao.Rollback;
+              end;
+            finally
+              qrNumProd.Free;
+            end;
+          end;
+        3:
+          begin
+            try
+              qrNumProd.Connection := Conexao;
+              qrNumProd.SQL.Text :='''
+              SELECT COUNT(ID_FORN) as Contador FROM PRODUTOS p
+              LEFT JOIN FORNECEDOR f on f.ID = p.ID_FORN
+              WHERE f.ID = :pID;
+              ''';
+
+              Conexao.StartTransaction;
+              try
+                qrNumProd.ParamByName('pID').AsInteger := IDdoItem;
+                qrNumProd.Open;
+                Conexao.Commit;
+                Result := qrNumProd.FieldByName('Contador').AsInteger;
+              except
+                Conexao.Rollback;
+              end;
+            finally
+              qrNumProd.Free;
+            end;
+          end;
+      end;
+    end;
+  end.

@@ -1,0 +1,36 @@
+unit uFrmRelatorios;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.Mask, frxSmartMemo,
+  frCoreClasses, frxClass;
+
+type
+  TForm6 = class(TForm)
+    edtData: TMaskEdit;
+    edtDataFinal: TMaskEdit;
+    cbxRelatorios: TComboBox;
+    lbTitulo2: TLabel;
+    lbInicial: TLabel;
+    lbFinal: TLabel;
+    lbTitulo1: TLabel;
+    btnGerar: TButton;
+    frxReport1: TfrxReport;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form6: TForm6;
+
+implementation
+
+{$R *.dfm}
+
+
+
+end.

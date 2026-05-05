@@ -1,0 +1,105 @@
+unit uService.Estoque;
+
+interface
+  uses
+  System.SysUtils, FireDAC.Comp.Client, System.Generics.Collections, uService.Produto, uModel.Classes, uDM;
+
+type
+  TEstoqueService = class
+    private
+
+    public
+      function Salvar(ListaMovimentacoes: TObjectList<TMovimentacao>; Conexao : TFDConnection): Boolean;
+      function Deletar(IDMov: Integer; Conexao : TFDConnection): Boolean;
+  end;
+implementation
+  function TEstoqueService.Salvar(ListaMovimentacoes: TObjectList<TMovimentacao>; Conexao : TFDConnection): Boolean;
+    var
+      Movimento : TMovimentacao;
+      qrSalvar : TFDQuery;
+      tipoMovimento : String;
+      valorUnit : currency;
+      Service : TProdutoService;
+    begin
+      Service := TProdutoService.Create;
+      qrSalvar := TFDQuery.Create(nil);
+      try
+        qrSalvar.Connection := Conexao;
+        qrSalvar.SQL.Text := '''
+          Insert into Movimentacao (ID_PRODUTO, TIPO, QUANTIDADE, VALOR_UNIT, DATA, DESCRICAO)
+          VALUES (:pIDProduto, :pTipo, :pQuantidade, :pValorUnit, :pData, :pDescricao);
+          ''';
+        qrSalvar.Prepare;
+        Conexao.StartTransaction;
+        try
+          for Movimento in ListaMovimentacoes do
+            begin
+              if Movimento.Tipo = tmEntrada then
+                begin
+                  tipoMovimento := 'E';
+                  valorUnit := Movimento.Produto.PrecoCusto;
+                  Movimento.Produto.Quantidade := Movimento.Produto.Quantidade + Movimento.Quantidade;
+                end
+              else
+                begin
+                  tipoMovimento := 'S';
+                  valorUnit := Movimento.Produto.PrecoVenda;
+                  Movimento.Produto.Quantidade := Movimento.Produto.Quantidade - Movimento.Quantidade;
+                end;
+
+              qrSalvar.ParamByName('pIDProduto').AsInteger := Movimento.Produto.ID;
+              qrSalvar.ParamByName('pTipo').AsString := tipoMovimento;
+              qrSalvar.ParamByName('pQuantidade').Value := Movimento.Quantidade;
+              qrSalvar.ParamByName('pValorUnit').Value:= valorUnit;
+              qrSalvar.ParamByName('pData').AsDate := Movimento.Data;
+              qrSalvar.ParamByName('pDescricao').AsString := Movimento.Descricao;
+              qrSalvar.ExecSQL;
+
+              Service.Atualizar(Movimento.Produto, Conexao);
+            end;
+            Conexao.Commit;
+            Result := True;
+          except
+            on Erro: Exception do
+            begin
+              Conexao.Rollback;
+              Result := False;
+              raise Exception.Create('Erro do Banco de Dados: ' + Erro.Message);
+            end;
+            end;
+      finally
+        qrSalvar.Free;
+        Service.Free;
+      end;
+
+
+    end;
+
+
+  function TEstoqueService.Deletar(IDMov: Integer; Conexao : TFDConnection): Boolean;
+    var
+      qrDeletar: TFDQuery;
+    begin
+      qrDeletar := TFDQuery.Create(nil);
+      Conexao.StartTransaction;
+      try
+        try
+          qrDeletar.Connection := Conexao;
+          qrDeletar.SQL.Text := '''
+          DELETE FROM MOVIMENTACAO
+          WHERE ID = :pID
+          ''';
+          qrDeletar.ParamByName('pID').AsInteger := IDMov;
+          qrDeletar.ExecSQL;
+          Conexao.Commit;
+          Result := True;
+        except
+          Conexao.Rollback;
+          Result := False;
+        end;
+      finally
+        qrDeletar.Free;
+      end;
+
+    end;
+end.

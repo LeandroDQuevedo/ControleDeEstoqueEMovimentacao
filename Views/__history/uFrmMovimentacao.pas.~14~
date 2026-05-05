@@ -1,0 +1,83 @@
+unit uFrmMovimentacao;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, FireDAC.Comp.Client, uFrmInformarMovimentacao, Vcl.ExtCtrls, uDM, uService.Produto,
+  uService.Estoque, uModel.Classes, Data.DB, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TForm3 = class(TForm)
+    pnBotoes: TPanel;
+    btnMovimentacao: TButton;
+    grListMov: TDBGrid;
+    btnDeletarMov: TButton;
+    btnRelatorio: TButton;
+    procedure btnMovimentacaoClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnDeletarMovClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form3: TForm3;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm3.btnDeletarMovClick(Sender: TObject);
+var
+  FProduto : TProduto;
+  novaQuantidade : double;
+  ServiceProd : TProdutoService;
+  ServiceEst : TEstoqueService;
+begin
+  ServiceProd := TProdutoService.Create;
+  ServiceEst := TEstoqueService.Create;
+  try
+
+    if not ServiceEst.VerificaUltimoDeletar(dmPrincipal.qrListaMov.FieldByName('ID_PRODUTO').AsInteger, Trunc(dmPrincipal.qrListaMov.FieldByName('DATA').AsDateTime), dmPrincipal.FDConnection1) then
+      begin
+        ShowMessage('Só é possível excluir a última movimentação do produto!');
+        ModalResult := mrNone;
+        exit;
+      end;
+
+    FProduto := ServiceProd.RetornarProduto(dmPrincipal.qrListaMov.FieldByName('ID_PRODUTO').AsInteger);
+
+    if dmPrincipal.qrListaMov.FieldByName('TIPO').AsString = 'Entrada' then
+      FProduto.Quantidade := FProduto.Quantidade - dmPrincipal.qrListaMov.FieldByName('QUANTIDADE').AsFloat
+    else
+      FProduto.Quantidade := FProduto.Quantidade + dmPrincipal.qrListaMov.FieldByName('QUANTIDADE').AsFloat;
+
+    ServiceProd.Atualizar(FProduto,dmPrincipal.FDConnection1);
+
+    ServiceEst.Deletar(dmPrincipal.qrListaMov.FieldByName('ID').AsInteger,dmPrincipal.FDConnection1);
+    dmPrincipal.qrListaMov.Close;
+    dmPrincipal.qrListaMov.Open;
+  finally
+    ServiceProd.Free;
+    ServiceEst.Free;
+    FProduto.Free;
+  end;
+end;
+
+procedure TForm3.btnMovimentacaoClick(Sender: TObject);
+var
+  formInforMovimentacao: TForm4;
+begin
+  formInforMovimentacao := TForm4.Create(nil);
+  formInforMovimentacao.ShowModal;
+end;
+
+procedure TForm3.FormCreate(Sender: TObject);
+begin
+  grListMov.DataSource.DataSet.Open;
+end;
+
+end.

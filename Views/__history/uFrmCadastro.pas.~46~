@@ -1,0 +1,185 @@
+unit uFrmCadastro;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, uModel.Classes, uDM, uService.Produto,
+  uFrmCadastroInfoAdd, Vcl.DBCtrls;
+
+type
+  TForm2 = class(TForm)
+    edtNome: TEdit;
+    pnBtnFinal: TPanel;
+    BtnSalvar: TButton;
+    BtnCancelar: TButton;
+    edtPrecoCusto: TEdit;
+    edtPrecoVenda: TEdit;
+    edtQntd: TEdit;
+    cbxMarca: TDBLookupComboBox;
+    cbxFornecedor: TDBLookupComboBox;
+    cbxCategoria: TDBLookupComboBox;
+    cbxUnidMed: TDBLookupComboBox;
+    LabFornecedor: TLabel;
+    LabPrecoVenda: TLabel;
+    LabPrecoCusto: TLabel;
+    LabMarca: TLabel;
+    LabCategoria: TLabel;
+    LabQntdeUnidMed: TLabel;
+    LabProduto: TLabel;
+    LabAuxPrecoVenda: TLabel;
+    LabAuxPrecoCusto: TLabel;
+    cbxAtivo: TCheckBox;
+    bntAddFornecedor: TButton;
+    btnAddMarca: TButton;
+    btnAddCategoria: TButton;
+    btnAddUnidMed: TButton;
+    procedure BtnSalvarClick(Sender: TObject);
+    procedure BtnCancelarClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure CadastrarInfoAdd(TipoInfoAdd : integer);
+    procedure bntAddFornecedorClick(Sender: TObject);
+    procedure btnAddMarcaClick(Sender: TObject);
+    procedure btnAddCategoriaClick(Sender: TObject);
+    procedure btnAddUnidMedClick(Sender: TObject);
+  private
+    { Private declarations }
+    FProduto: TProduto;
+  public
+    { Public declarations }
+    ProdutoIDEdicao: Integer;
+  end;
+
+var
+  Form2: TForm2;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm2.btnAddUnidMedClick(Sender: TObject);
+begin
+  CadastrarInfoAdd(3);
+end;
+
+procedure TForm2.btnAddCategoriaClick(Sender: TObject);
+begin
+  CadastrarInfoAdd(1);
+end;
+
+procedure TForm2.btnAddMarcaClick(Sender: TObject);
+begin
+  CadastrarInfoAdd(2);
+end;
+
+procedure TForm2.bntAddFornecedorClick(Sender: TObject);
+begin
+  CadastrarInfoAdd(3);
+end;
+
+procedure TForm2.BtnCancelarClick(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure TForm2.BtnSalvarClick(Sender: TObject);
+  var
+    Service: TProdutoService;
+  begin
+    FProduto := TProduto.Create;
+    FProduto.ID := ProdutoIDEdicao;
+    FProduto.Nome := edtNome.Text;
+    FProduto.PrecoCusto := StrToCurrDef(edtPrecoCusto.Text, 0);
+    FProduto.PrecoVenda := StrToCurrDef(edtPrecoVenda.Text, 0);
+    FProduto.Quantidade := StrToFloatDef(edtQntd.Text, 0);
+    FProduto.Ativo := cbxAtivo.Checked;
+    FProduto.UnidadeMedida.Sigla := cbxUnidMed.Text;
+    FProduto.Fornecedor.Nome := cbxFornecedor.Text;
+    FProduto.Categoria.Nome := cbxCategoria.Text;
+    FProduto.Marca.Nome := cbxMarca.Text;
+    FProduto.UnidadeMedida.ID := StrToIntDef(VartoStr(cbxUnidMed.KeyValue), 0);
+    FProduto.Categoria.ID := StrToIntDef(VarToStr(cbxCategoria.KeyValue), 0);
+    FProduto.Marca.ID := StrToIntDef(VarToStr(cbxMarca.KeyValue), 0);
+    FProduto.Fornecedor.ID := StrToIntDef(VarToStr(cbxFornecedor.KeyValue), 0);
+
+    FProduto.Validar;
+    Service := TProdutoService.Create;
+
+    if ProdutoIDEdicao > 0 then
+    begin
+      try
+      if Service.Atualizar(FProduto, dmPrincipal.FDConnection1) then
+        begin
+          ShowMessage('Produto atualizado com sucesso!');
+          Close;
+        end
+      else
+        begin
+          ShowMessage('Erro ao atualizar o produto no banco de dados.')
+        end;
+      finally
+        Service.Free;
+      end;
+    end
+    else
+    begin
+      try
+      if Service.Salvar(FProduto, dmPrincipal.FDConnection1) then
+        begin
+          ShowMessage('Produto salvo com sucesso!');
+          Close;
+        end
+      else
+        begin
+          ShowMessage('Erro ao salvar o produto no banco de dados.')
+        end;
+      finally
+        Service.Free;
+      end;
+    end;
+  end;
+
+
+procedure TForm2.FormCreate(Sender: TObject);
+begin
+  cbxCategoria.ListSource.DataSet.Open;
+  cbxMarca.ListSource.DataSet.Open;
+  cbxFornecedor.ListSource.DataSet.Open;
+  cbxUnidMed.ListSource.DataSet.Open;
+end;
+
+procedure TForm2.FormDestroy(Sender: TObject);
+begin
+  cbxCategoria.ListSource.DataSet.Close;
+  cbxMarca.ListSource.DataSet.Close;
+  cbxFornecedor.ListSource.DataSet.Close;
+  cbxUnidMed.ListSource.DataSet.Close;
+end;
+
+procedure TForm2.FormShow(Sender: TObject);
+begin
+  if ProdutoIDEdicao > 0 then
+  begin
+    cbxAtivo.Visible := True;
+    edtNome.Text := uDM.dmPrincipal.qrListaProd.FieldByName('Produto').AsString;
+    edtQntd.Text := uDM.dmPrincipal.qrListaProd.FieldByName('Qtd').AsString;
+    edtPrecoCusto.Text := uDM.dmPrincipal.qrListaProd.FieldByName('Custo').AsString;
+    edtPrecoVenda.Text := uDM.dmPrincipal.qrListaProd.FieldByName('Venda').AsString;
+    cbxCategoria.KeyValue := uDM.dmPrincipal.qrListaProd.FieldByName('CATEGORIAID').AsInteger;
+    cbxMarca.KeyValue := uDM.dmPrincipal.qrListaProd.FieldByName('MarcaID').AsInteger;
+    cbxFornecedor.KeyValue := uDM.dmPrincipal.qrListaProd.FieldByName('FornecedorID').AsInteger;
+    cbxUnidMed.KeyValue := uDM.dmPrincipal.qrListaProd.FieldByName('UnidMedID').AsInteger;
+  end;
+end;
+
+procedure TForm2.CadastrarInfoAdd(TipoInfoAdd : integer);
+  var
+    frmCadastroInfo : TForm5;
+  begin
+    frmCadastroInfo := TForm5.Create(nil);
+    frmCadastroInfo.TipoInfoCadastro := TipoInfoAdd;
+    frmCadastroInfo.ShowModal;
+  end;
+end.

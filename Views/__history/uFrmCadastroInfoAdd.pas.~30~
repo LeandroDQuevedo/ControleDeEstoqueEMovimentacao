@@ -1,0 +1,276 @@
+unit uFrmCadastroInfoAdd;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Mask, uService.Produto, uModel.Classes, uDM,
+  Data.DB, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TForm5 = class(TForm)
+    pnTipoinfo: TPanel;
+    cbxTipo: TComboBox;
+    edtNome: TEdit;
+    lbNome: TLabel;
+    edtEndereco: TEdit;
+    lbEndereco: TLabel;
+    lbCnpj: TLabel;
+    mktCnpj: TMaskEdit;
+    pnBtnFinal: TPanel;
+    BtnSalvar: TButton;
+    BtnCancelar: TButton;
+    lbDescricao: TLabel;
+    edtDescricao: TEdit;
+    edtSigla: TEdit;
+    lbSigla: TLabel;
+    pnCampos: TPanel;
+    grListaAdd: TDBGrid;
+    btnDeletar: TButton;
+    procedure BtnSalvarClick(Sender: TObject);
+    procedure BtnCancelarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure btnDeletarClick(Sender: TObject);
+    procedure grListaAddCellClick(Column: TColumn);
+    procedure grListaAddKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
+  private
+    { Private declarations }
+    ObjetoDeEnvio: TObject;
+  public
+    { Public declarations }
+    TipoInfoCadastro : Integer;
+  end;
+
+var
+  Form5: TForm5;
+
+implementation
+
+{$R *.dfm}
+
+procedure TForm5.BtnCancelarClick(Sender: TObject);
+  begin
+    Close;
+  end;
+
+procedure TForm5.btnDeletarClick(Sender: TObject);
+  var
+    Tabela: Integer;
+    IDdoItem: Integer;
+    Service: TProdutoService;
+begin
+  Service := TProdutoService.Create;
+  Tabela := cbxTipo.ItemIndex;
+  IDdoItem := grListaAdd.DataSource.DataSet.FieldByName('ID').AsInteger;
+  try
+    if Service.DeletarInfoAdicional(IDdoItem, Tabela, dmPrincipal.FDConnection1) then
+      ShowMessage('Item excluído com sucesso!')
+    else
+      ShowMessage('Não foi possível realizar a exclusão do item!')
+  finally
+    Service.Free;
+    grListaAdd.DataSource.DataSet.Close;
+    grListaAdd.DataSource.DataSet.Open;
+  end;
+
+end;
+
+procedure TForm5.BtnSalvarClick(Sender: TObject);
+  var
+    Service: TProdutoService;
+    MensagemRetorno: String;
+  begin
+    case cbxTipo.ItemIndex of
+      0:
+        begin
+          if trim(edtDescricao.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo da Descrição!');
+              exit;
+            end;
+          if trim(edtSigla.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo da Sigla!');
+              exit;
+            end;
+          ObjetoDeEnvio := TUnidadeMedida.Create;
+          TUnidadeMedida(ObjetoDeEnvio).Sigla := edtSigla.Text;
+          TUnidadeMedida(ObjetoDeEnvio).Descricao := edtDescricao.Text;
+          MensagemRetorno := 'Unidade de Medida';
+        end;
+
+      1:
+        begin
+          if trim(edtNome.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo do Nome!');
+              exit;
+            end;
+          ObjetoDeEnvio := TCategoria.Create;
+          TCategoria(ObjetoDeEnvio).Nome := edtNome.Text;
+          MensagemRetorno := 'Categoria';
+        end;
+
+      2:
+        begin
+          if trim(edtNome.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo do Nome!');
+              exit;
+            end;
+          ObjetoDeEnvio := TMarca.Create;
+          TMarca(ObjetoDeEnvio).Nome := edtNome.Text;
+          MensagemRetorno := 'Marca';
+        end;
+
+      3:
+        begin
+          if trim(edtNome.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo do Nome!');
+              exit;
+            end;
+          if trim(edtEndereco.Text) = '' then
+            begin
+              ShowMessage('Preencha o campo do Endereço!');
+              exit;
+            end;
+          if (trim(mktCnpj.Text) = '') or (Length(mktCnpj.Text) < 18) then
+            begin
+              ShowMessage('Preencha o campo do CNPJ!');
+              exit;
+            end;
+          ObjetoDeEnvio := TFornecedor.Create;
+          TFornecedor(ObjetoDeEnvio).Nome := edtNome.Text;
+          TFornecedor(ObjetoDeEnvio).Localizacao := edtEndereco.Text;
+          TFornecedor(ObjetoDeEnvio).CNPJ := mktCnpj.Text;
+          MensagemRetorno := 'Fornecedor';
+        end;
+    end;
+
+
+    Service := TProdutoService.Create;
+    try
+      if  Service.SalvarInfoAdicional(ObjetoDeEnvio, TipoInfoCadastro, dmPrincipal.FDConnection1) then
+        ShowMessage('Novo cadastro de ' + MensagemRetorno + 'salvo com sucesso!')
+      else
+        ShowMessage('Erro ao salvar o novo cadastro de ' + MensagemRetorno);
+    finally
+      Service.Free;
+      Close;
+    end;
+
+  end;
+
+procedure TForm5.FormCreate(Sender: TObject);
+begin
+  cbxTipo.ItemIndex := TipoInfoCadastro;
+end;
+
+procedure TForm5.FormShow(Sender: TObject);
+  begin
+    case cbxTipo.ItemIndex of
+      0:
+        begin
+          edtNome.Visible := False;
+          lbNome.Visible := False;
+
+          edtSigla.Visible := True;
+          lbSigla.Visible := True;
+
+          edtDescricao.Visible := True;
+          lbDescricao.Visible := True;
+
+          mktCnpj.Visible := False;
+          lbCnpj.Visible := False;
+
+          edtEndereco.Visible := False;
+          lbEndereco.Visible := False;
+
+
+          grListaAdd.DataSource := dmPrincipal.dsUnidMed  ;
+        end;
+      1:
+        begin
+          edtNome.Visible := True;
+          lbNome.Visible := True;
+
+          edtSigla.Visible := False;
+          lbSigla.Visible := False;
+
+          edtDescricao.Visible := False;
+          lbDescricao.Visible := False;
+
+          mktCnpj.Visible := False;
+          lbCnpj.Visible := False;
+
+          edtEndereco.Visible := False;
+          lbEndereco.Visible := False;
+
+          grListaAdd.DataSource := dmPrincipal.dsCategoria;
+        end;
+      2:
+        begin
+          edtNome.Visible := True;
+          lbNome.Visible := True;
+
+          edtSigla.Visible := False;
+          lbSigla.Visible := False;
+
+          edtDescricao.Visible := False;
+          lbDescricao.Visible := False;
+
+          mktCnpj.Visible := False;
+          lbCnpj.Visible := False;
+
+          edtEndereco.Visible := False;
+          lbEndereco.Visible := False;
+
+          grListaAdd.DataSource := dmPrincipal.dsMarca;
+        end;
+      3:
+        begin
+          edtNome.Visible := True;
+          lbNome.Visible := True;
+
+          edtSigla.Visible := False;
+          lbSigla.Visible := False;
+
+          edtDescricao.Visible := False;
+          lbDescricao.Visible := False;
+
+          mktCnpj.Visible := True;
+          lbCnpj.Visible := True;
+
+          edtEndereco.Visible := True;
+          lbEndereco.Visible := True;
+          grListaAdd.DataSource := dmPrincipal.dsFornecedor;
+        end;
+    end;
+  end;
+procedure TForm5.grListaAddCellClick(Column: TColumn);
+  var
+    Service : TProdutoService;
+    IDProduto : Integer;
+  begin
+    Service := TProdutoService.Create;
+    try
+      IDProduto := grListaAdd.DataSource.DataSet.FieldByName('ID').AsInteger;
+      if service.RetornaNumeroProdutosInfoAdicional(IDProduto, cbxTipo.ItemIndex, dmPrincipal.FDConnection1) > 0 then
+        btnDeletar.Enabled := False
+      else
+        btnDeletar.Enabled := True;
+    finally
+    Service.Free;
+    end;
+  end;
+
+procedure TForm5.grListaAddKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  grListaAddCellClick(nil);
+end;
+
+end.
