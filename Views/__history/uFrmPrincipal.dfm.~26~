@@ -1,0 +1,233 @@
+﻿object Form1: TForm1
+  Left = -20
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 542
+  ClientWidth = 1002
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poDesigned
+  WindowState = wsMaximized
+  OnCreate = FormCreate
+  TextHeight = 15
+  object pnBotoes: TPanel
+    Left = 817
+    Top = 65
+    Width = 185
+    Height = 413
+    Align = alRight
+    Caption = 'pnBotoes'
+    ShowCaption = False
+    TabOrder = 1
+    ExplicitLeft = 895
+    ExplicitHeight = 463
+    object btnInserir: TButton
+      Left = 32
+      Top = 24
+      Width = 129
+      Height = 25
+      Caption = 'Inserir...'
+      TabOrder = 0
+      OnClick = btnInserirClick
+    end
+    object btnAlterar: TButton
+      Left = 32
+      Top = 63
+      Width = 129
+      Height = 25
+      Caption = 'Alterar...'
+      TabOrder = 1
+      OnClick = btnAlterarClick
+    end
+    object btnDeletar: TButton
+      Left = 32
+      Top = 104
+      Width = 129
+      Height = 25
+      Caption = 'Deletar'
+      Enabled = False
+      TabOrder = 2
+      OnClick = btnDeletarClick
+    end
+  end
+  object pnFiltros: TPanel
+    Left = 0
+    Top = 0
+    Width = 1002
+    Height = 65
+    Align = alTop
+    Caption = 'PnTop'
+    ShowCaption = False
+    TabOrder = 0
+    ExplicitWidth = 1080
+    DesignSize = (
+      1002
+      65)
+    object edtPesquisa: TEdit
+      Left = 167
+      Top = 21
+      Width = 170
+      Height = 23
+      TabOrder = 1
+      TextHint = '...'
+    end
+    object cbxFiltros: TComboBox
+      Left = 16
+      Top = 21
+      Width = 129
+      Height = 23
+      TabOrder = 0
+      Text = 'Filtros...'
+      Items.Strings = (
+        'Produto'
+        'Unidade de Medida'
+        'Preco Custo'
+        'Preco Venda'
+        'Quantidade'
+        'Categoria'
+        'Marca'
+        'Fornecedor')
+    end
+    object ckbAtivo: TCheckBox
+      Left = 358
+      Top = 24
+      Width = 97
+      Height = 17
+      Caption = 'Ativos'
+      Checked = True
+      State = cbChecked
+      TabOrder = 2
+    end
+    object ckbInativo: TCheckBox
+      Left = 448
+      Top = 24
+      Width = 97
+      Height = 17
+      Caption = 'Inativos'
+      TabOrder = 3
+    end
+    object btnLocalizar: TButton
+      Left = 849
+      Top = 20
+      Width = 122
+      Height = 25
+      Anchors = [akRight]
+      Caption = 'Localizar'
+      TabOrder = 4
+      OnClick = btnLocalizarClick
+      ExplicitLeft = 927
+    end
+  end
+  object grLista: TDBGrid
+    Left = 0
+    Top = 65
+    Width = 817
+    Height = 413
+    Align = alClient
+    DataSource = dmPrincipal.dsListaProd
+    TabOrder = 2
+    TitleFont.Charset = DEFAULT_CHARSET
+    TitleFont.Color = clWindowText
+    TitleFont.Height = -12
+    TitleFont.Name = 'Segoe UI'
+    TitleFont.Style = []
+    OnCellClick = grListaCellClick
+    OnDblClick = btnAlterarClick
+    OnKeyUp = grListaKeyUp
+    Columns = <
+      item
+        Expanded = False
+        FieldName = 'PRODUTO'
+        Width = 520
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'CATEGORIA'
+        Width = 240
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'QTD'
+        Width = 83
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'UNID'
+        Width = 36
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'CUSTO'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'VENDA'
+        Width = 64
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'VALOR_EM_ESTOQUE'
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'MARCA'
+        Width = 183
+        Visible = True
+      end
+      item
+        Expanded = False
+        FieldName = 'FORNECEDOR'
+        Width = 340
+        Visible = True
+      end>
+  end
+  object pnMenus: TPanel
+    Left = 0
+    Top = 478
+    Width = 1002
+    Height = 64
+    Align = alBottom
+    ParentBackground = False
+    TabOrder = 3
+    ExplicitTop = 528
+    ExplicitWidth = 1080
+    object Movimentação: TButton
+      Left = 16
+      Top = 16
+      Width = 129
+      Height = 33
+      Caption = 'Movimenta'#231#227'o'
+      TabOrder = 0
+      OnClick = MovimentaçãoClick
+    end
+    object btnInfoAdicional: TButton
+      Left = 167
+      Top = 16
+      Width = 138
+      Height = 33
+      Caption = 'Informa'#231#245'es Adicionais'
+      TabOrder = 1
+      OnClick = btnInfoAdicionalClick
+    end
+    object btnRelatorios: TButton
+      Left = 325
+      Top = 16
+      Width = 138
+      Height = 33
+      Caption = 'Relat'#243'rios'
+      TabOrder = 2
+      OnClick = btnRelatoriosClick
+    end
+  end
+end

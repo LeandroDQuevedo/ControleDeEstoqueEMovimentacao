@@ -1,7 +1,7 @@
-object Form3: TForm3
+object FrmMovimentacao: TFrmMovimentacao
   Left = 409
   Top = 187
-  Caption = 'Form3'
+  Caption = 'Movimenta'#231#227'o'
   ClientHeight = 545
   ClientWidth = 1094
   Color = clBtnFace
@@ -54,6 +54,7 @@ object Form3: TForm3
     Height = 545
     Align = alClient
     DataSource = dmPrincipal.dsListaMov
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     TabOrder = 1
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText

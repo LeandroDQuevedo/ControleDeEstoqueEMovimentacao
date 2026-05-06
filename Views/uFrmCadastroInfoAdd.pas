@@ -8,7 +8,7 @@ uses
   Data.DB, Vcl.Grids, Vcl.DBGrids;
 
 type
-  TForm5 = class(TForm)
+  TFrmCadastroInfoAdd = class(TForm)
     pnTipoinfo: TPanel;
     cbxTipo: TComboBox;
     edtNome: TEdit;
@@ -43,18 +43,18 @@ type
   end;
 
 var
-  Form5: TForm5;
+  FrmCadastroInfoAdd: TFrmCadastroInfoAdd;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm5.BtnCancelarClick(Sender: TObject);
+procedure TFrmCadastroInfoAdd.BtnCancelarClick(Sender: TObject);
   begin
     Close;
   end;
 
-procedure TForm5.btnDeletarClick(Sender: TObject);
+procedure TFrmCadastroInfoAdd.btnDeletarClick(Sender: TObject);
   var
     Tabela: Integer;
     IDdoItem: Integer;
@@ -64,7 +64,7 @@ begin
   Tabela := cbxTipo.ItemIndex;
   IDdoItem := grListaAdd.DataSource.DataSet.FieldByName('ID').AsInteger;
   try
-    if Service.DeletarInfoAdicional(IDdoItem, Tabela, dmPrincipal.FDConnection1) then
+    if Service.DeletarInfoAdicional(IDdoItem, Tabela, dmPrincipal.ConexaoBanco) then
       ShowMessage('Item excluído com sucesso!')
     else
       begin
@@ -80,7 +80,7 @@ begin
 
 end;
 
-procedure TForm5.BtnSalvarClick(Sender: TObject);
+procedure TFrmCadastroInfoAdd.BtnSalvarClick(Sender: TObject);
   var
     Service: TProdutoService;
     MensagemRetorno: String;
@@ -156,7 +156,7 @@ procedure TForm5.BtnSalvarClick(Sender: TObject);
 
     Service := TProdutoService.Create;
     try
-      if  Service.SalvarInfoAdicional(ObjetoDeEnvio, TipoInfoCadastro, dmPrincipal.FDConnection1) then
+      if  Service.SalvarInfoAdicional(ObjetoDeEnvio, TipoInfoCadastro, dmPrincipal.ConexaoBanco) then
         ShowMessage('Novo cadastro de ' + MensagemRetorno + 'salvo com sucesso!')
       else
         begin
@@ -176,7 +176,7 @@ procedure TForm5.BtnSalvarClick(Sender: TObject);
 
   end;
 
-procedure TForm5.FormShow(Sender: TObject);
+procedure TFrmCadastroInfoAdd.FormShow(Sender: TObject);
   begin
   if cbxTipo.ItemIndex = -1 then
     cbxTipo.ItemIndex := TipoInfoCadastro;
@@ -262,7 +262,7 @@ procedure TForm5.FormShow(Sender: TObject);
         end;
     end;
   end;
-procedure TForm5.grListaAddCellClick(Column: TColumn);
+procedure TFrmCadastroInfoAdd.grListaAddCellClick(Column: TColumn);
   var
     Service : TProdutoService;
     IDProduto : Integer;
@@ -270,7 +270,7 @@ procedure TForm5.grListaAddCellClick(Column: TColumn);
     Service := TProdutoService.Create;
     try
       IDProduto := grListaAdd.DataSource.DataSet.FieldByName('ID').AsInteger;
-      if service.RetornaNumeroProdutosInfoAdicional(IDProduto, cbxTipo.ItemIndex, dmPrincipal.FDConnection1) > 0 then
+      if service.RetornaNumeroProdutosInfoAdicional(IDProduto, cbxTipo.ItemIndex, dmPrincipal.ConexaoBanco) > 0 then
         btnDeletar.Enabled := False
       else
         btnDeletar.Enabled := True;
@@ -279,7 +279,7 @@ procedure TForm5.grListaAddCellClick(Column: TColumn);
     end;
   end;
 
-procedure TForm5.grListaAddKeyUp(Sender: TObject; var Key: Word;
+procedure TFrmCadastroInfoAdd.grListaAddKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   grListaAddCellClick(nil);

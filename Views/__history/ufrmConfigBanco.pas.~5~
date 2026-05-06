@@ -1,0 +1,110 @@
+unit ufrmConfigBanco;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.VirtualImageList, FireDAC.Comp.Client, System.IniFiles,
+  Vcl.BaseImageCollection, Vcl.ImageCollection, System.ImageList, Vcl.ImgList,
+  Vcl.ExtCtrls, Vcl.StdCtrls;
+
+type
+  TForm7 = class(TForm)
+    FileOpenDialog1: TFileOpenDialog;
+    edtCaminho: TButtonedEdit;
+    ImageCollection1: TImageCollection;
+    VirtualImageList1: TVirtualImageList;
+    Label1: TLabel;
+    btnSalvarConex: TButton;
+    btnTstCnx: TButton;
+    edtUsername: TEdit;
+    edtSenha: TEdit;
+    procedure edtCaminhoRightButtonClick(Sender: TObject);
+    procedure btnTstCnxClick(Sender: TObject);
+    procedure btnSalvarConexClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  Form7: TForm7;
+
+implementation
+
+uses
+  uDM;
+
+{$R *.dfm}
+
+procedure TForm7.btnSalvarConexClick(Sender: TObject);
+var
+  ArquivoINI: TIniFile;
+  CaminhoDoArquivo: string;
+begin
+  CaminhoDoArquivo := ExtractFilePath(ParamStr(0)) + 'config.ini';
+
+  ArquivoINI := TIniFile.Create(CaminhoDoArquivo);
+  try
+    btnTstCnxClick(nil);
+    ArquivoINI.WriteString('BANCO', 'Caminho', edtCaminho.Text);
+    ArquivoINI.WriteString('BANCO', 'Username', edtUsername.Text);
+    ArquivoINI.WriteString('BANCO', 'Senha', edtSenha.Text);
+  finally
+    ArquivoINI.Free;
+  end;
+  ModalResult := mrOk;
+end;
+
+procedure TForm7.btnTstCnxClick(Sender: TObject);
+var
+  TempConex: TFDConnection; 
+begin
+  TempConex := TFDConnection.Create(nil);
+  TempConex.Params.Assign(dmPrincipal.ConexaoBanco.Params);
+  
+
+  if Trim(edtCaminho.Text) = '' then
+    begin
+      ShowMessage('Por favor, selecione o caminho do banco de dados primeiro!');
+      exit;
+    end;
+  if Trim(edtUsername.Text) = '' then
+  begin
+    ShowMessage('Por favor, insira o login do banco de dados primeiro!');
+    exit;
+  end;
+  if Trim(edtSenha.Text) = '' then
+  begin
+    ShowMessage('Por favor, insira a senha do banco de dados primeiro!');
+    exit;
+  end;
+  try
+    try
+    TempConex.Params.Values['Database'] := edtCaminho.Text;
+    TempConex.Params.Values['User_Name'] := edtUsername.Text;
+    TempConex.Params.Values['Password'] := edtSenha.Text;
+
+    TempConex.Connected := True;
+
+    ShowMessage('Conexão realizada com sucesso!');
+    except
+      on E: Exception do
+        ShowMessage('Não foi possível conectar. Verifique os campos.' + sLineBreak + 'Erro original: ' + E.Message);
+    end;
+  finally
+    TempConex.Free;
+  end;
+  
+end;
+
+procedure TForm7.edtCaminhoRightButtonClick(Sender: TObject);
+begin
+  if FileOpenDialog1.Execute then
+  begin
+    edtCaminho.Text := FileOpenDialog1.FileName;
+  end;
+end;
+
+end.

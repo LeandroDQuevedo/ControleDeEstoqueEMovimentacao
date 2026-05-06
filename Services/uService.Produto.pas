@@ -130,7 +130,7 @@ implementation
     begin
       qrRretornoProd :=  TFDQuery.Create(nil);
       try
-        qrRretornoProd.Connection := dmPrincipal.FDConnection1;
+        qrRretornoProd.Connection := dmPrincipal.ConexaoBanco;
         qrRretornoProd.sql.Text := dmPrincipal.qrRetonaProdMontar.SQL.Text;
         qrRretornoProd.ParamByName('pID').AsInteger := IDProduto;
         qrRretornoProd.Open;

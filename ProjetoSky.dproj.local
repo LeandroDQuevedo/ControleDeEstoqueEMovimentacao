@@ -1,2 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<BorlandProject/>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2026/05/05 23:40:18.404,=C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Unit7.pas</Transaction>
+    <Transaction>2026/05/06 00:06:33.871,C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Views\ufrmConfigBanco.pas=C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Unit7.pas</Transaction>
+    <Transaction>2026/05/06 00:06:33.871,C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Views\ufrmConfigBanco.dfm=C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Unit7.dfm</Transaction>
+  </Transactions>
+</BorlandProject>

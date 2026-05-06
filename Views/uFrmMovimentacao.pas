@@ -8,7 +8,7 @@ uses
   uService.Estoque, uModel.Classes, Data.DB, Vcl.Grids, Vcl.DBGrids;
 
 type
-  TForm3 = class(TForm)
+  TFrmMovimentacao = class(TForm)
     pnBotoes: TPanel;
     btnMovimentacao: TButton;
     grListMov: TDBGrid;
@@ -24,13 +24,13 @@ type
   end;
 
 var
-  Form3: TForm3;
+  FrmMovimentacao: TFrmMovimentacao;
 
 implementation
 
 {$R *.dfm}
 
-procedure TForm3.btnDeletarMovClick(Sender: TObject);
+procedure TFrmMovimentacao.btnDeletarMovClick(Sender: TObject);
 var
   FProduto : TProduto;
   novaQuantidade : double;
@@ -39,7 +39,7 @@ var
 begin
   ServiceProd := TProdutoService.Create;
   ServiceEst := TEstoqueService.Create;
-  if not ServiceEst.VerificaUltimoDeletar(dmPrincipal.qrListaMov.FieldByName('ID_PRODUTO').AsInteger, Trunc(dmPrincipal.qrListaMov.FieldByName('DATA').AsDateTime), dmPrincipal.FDConnection1) then
+  if not ServiceEst.VerificaUltimoDeletar(dmPrincipal.qrListaMov.FieldByName('ID_PRODUTO').AsInteger, Trunc(dmPrincipal.qrListaMov.FieldByName('DATA').AsDateTime), dmPrincipal.ConexaoBanco) then
     begin
       ShowMessage('Só é possível excluir a última movimentação do produto!');
       exit;
@@ -52,9 +52,9 @@ begin
     else
       FProduto.Quantidade := FProduto.Quantidade + dmPrincipal.qrListaMov.FieldByName('QUANTIDADE').AsFloat;
 
-    ServiceProd.Atualizar(FProduto,dmPrincipal.FDConnection1);
+    ServiceProd.Atualizar(FProduto,dmPrincipal.ConexaoBanco);
 
-    ServiceEst.Deletar(dmPrincipal.qrListaMov.FieldByName('ID').AsInteger,dmPrincipal.FDConnection1);
+    ServiceEst.Deletar(dmPrincipal.qrListaMov.FieldByName('ID').AsInteger,dmPrincipal.ConexaoBanco);
     dmPrincipal.qrListaMov.Close;
     dmPrincipal.qrListaMov.Open;
   finally
@@ -64,15 +64,15 @@ begin
   end;
 end;
 
-procedure TForm3.btnMovimentacaoClick(Sender: TObject);
+procedure TFrmMovimentacao.btnMovimentacaoClick(Sender: TObject);
 var
-  formInforMovimentacao: TForm4;
+  formInforMovimentacao: TFrmInformarMovimentacao;
 begin
-  formInforMovimentacao := TForm4.Create(nil);
+  formInforMovimentacao := TFrmInformarMovimentacao.Create(nil);
   formInforMovimentacao.ShowModal;
 end;
 
-procedure TForm3.FormCreate(Sender: TObject);
+procedure TFrmMovimentacao.FormCreate(Sender: TObject);
 begin
   grListMov.DataSource.DataSet.Open;
 end;

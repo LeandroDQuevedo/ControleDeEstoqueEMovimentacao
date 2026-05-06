@@ -1,7 +1,7 @@
-object Form5: TForm5
+object FrmCadastroInfoAdd: TFrmCadastroInfoAdd
   Left = 735
   Top = 312
-  Caption = 'Form5'
+  Caption = 'Adiocionar Novos Itens de Informa'#231#227'o'
   ClientHeight = 507
   ClientWidth = 815
   Color = clBtnFace
@@ -20,7 +20,6 @@ object Form5: TForm5
     Height = 49
     Align = alTop
     TabOrder = 3
-    ExplicitWidth = 482
     object cbxTipo: TComboBox
       Left = 16
       Top = 14
@@ -42,9 +41,6 @@ object Form5: TForm5
     Height = 41
     Align = alBottom
     TabOrder = 1
-    ExplicitLeft = 272
-    ExplicitTop = 200
-    ExplicitWidth = 185
     object BtnSalvar: TButton
       Left = 528
       Top = 6
@@ -110,7 +106,7 @@ object Form5: TForm5
     object lbNome: TLabel
       Left = 85
       Top = 45
-      Width = 41
+      Width = 36
       Height = 15
       Caption = 'Nome:'
     end
@@ -177,6 +173,7 @@ object Form5: TForm5
     Height = 417
     Align = alClient
     DataSource = dmPrincipal.dsUnidMed
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgRowSelect, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
     TabOrder = 2
     TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText

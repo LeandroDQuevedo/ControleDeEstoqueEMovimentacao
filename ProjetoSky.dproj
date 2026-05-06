@@ -126,7 +126,7 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="Views\uFrmPrincipal.pas">
-            <Form>Form1</Form>
+            <Form>FrmPrincipal</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="uModel.Classes.pas"/>
@@ -137,24 +137,28 @@
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Views\uFrmCadastro.pas">
-            <Form>Form2</Form>
+            <Form>FrmCadastro</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Views\uFrmMovimentacao.pas">
-            <Form>Form3</Form>
+            <Form>FrmMovimentacao</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Views\uFrmInformarMovimentacao.pas">
-            <Form>Form4</Form>
+            <Form>FrmInformarMovimentacao</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Services\uService.Estoque.pas"/>
         <DCCReference Include="Views\uFrmCadastroInfoAdd.pas">
-            <Form>Form5</Form>
+            <Form>FrmCadastroInfoAdd</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Views\uFrmRelatorios.pas">
-            <Form>Form6</Form>
+            <Form>FrmRelatorios</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="Views\ufrmConfigBanco.pas">
+            <Form>FrmConfigBanco</Form>
             <FormType>dfm</FormType>
         </DCCReference>
         <BuildConfiguration Include="Base">
@@ -184,6 +188,12 @@
             </Delphi.Personality>
             <Deployment Version="4">
                 <DeployFile LocalName="Win32\Debug\ProjetoSky.exe" Configuration="Debug" Class="ProjectOutput">
+                    <Platform Name="Win32">
+                        <RemoteName>ProjetoSky.exe</RemoteName>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
+                <DeployFile LocalName="Win32\Release\ProjetoSky.exe" Configuration="Release" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>ProjetoSky.exe</RemoteName>
                         <Overwrite>true</Overwrite>

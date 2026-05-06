@@ -1,0 +1,90 @@
+object Form6: TForm6
+  Left = 654
+  Top = 208
+  Caption = 'Form6'
+  ClientHeight = 441
+  ClientWidth = 624
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poDesigned
+  TextHeight = 15
+  object lbTitulo2: TLabel
+    Left = 200
+    Top = 147
+    Width = 198
+    Height = 15
+    Caption = 'Selecione o per'#237'odo de data desejada:'
+    Transparent = False
+    Visible = False
+  end
+  object lbInicial: TLabel
+    Left = 113
+    Top = 179
+    Width = 34
+    Height = 15
+    Caption = 'Inicial:'
+    Visible = False
+  end
+  object lbFinal: TLabel
+    Left = 311
+    Top = 179
+    Width = 28
+    Height = 15
+    Caption = 'Final:'
+    Visible = False
+  end
+  object lbTitulo1: TLabel
+    Left = 192
+    Top = 75
+    Width = 220
+    Height = 15
+    Caption = 'Selecione o modelo de relat'#243'rio desejado:'
+  end
+  object edtData: TMaskEdit
+    Left = 153
+    Top = 176
+    Width = 120
+    Height = 23
+    EditMask = '!99/99/0000;1;_'
+    MaxLength = 10
+    TabOrder = 0
+    Text = '  /  /    '
+    Visible = False
+  end
+  object edtDataFinal: TMaskEdit
+    Left = 345
+    Top = 176
+    Width = 120
+    Height = 23
+    EditMask = '!99/99/0000;1;_'
+    MaxLength = 10
+    TabOrder = 1
+    Text = '  /  /    '
+    Visible = False
+  end
+  object cbxRelatorios: TComboBox
+    Left = 192
+    Top = 96
+    Width = 220
+    Height = 23
+    TabOrder = 2
+    TextHint = 'Selecione o Relat'#243'rio...'
+    OnChange = cbxRelatoriosChange
+    Items.Strings = (
+      'Relat'#243'rio de Movimenta'#231#227'o'
+      'Relat'#243'rio de Estoque')
+  end
+  object btnGerar: TButton
+    Left = 264
+    Top = 240
+    Width = 75
+    Height = 25
+    Caption = 'Gerar'
+    TabOrder = 3
+    OnClick = btnGerarClick
+  end
+end

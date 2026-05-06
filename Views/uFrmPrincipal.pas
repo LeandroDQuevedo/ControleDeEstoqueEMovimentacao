@@ -5,10 +5,12 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, uFrmCadastro, uDM, uFrmMovimentacao,
-  Vcl.DBCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, uService.Produto, uFrmCadastroInfoAdd, uFrmRelatorios;
+  Vcl.DBCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, uService.Produto, uFrmCadastroInfoAdd, uFrmRelatorios,
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection;
 
 type
-  TForm1 = class(TForm)
+  TFrmPrincipal = class(TForm)
     pnBotoes: TPanel;
     pnFiltros: TPanel;
     btnInserir: TButton;
@@ -24,6 +26,8 @@ type
     btnDeletar: TButton;
     btnInfoAdicional: TButton;
     btnRelatorios: TButton;
+    ImageCollection1: TImageCollection;
+    VirtualImageList1: TVirtualImageList;
     procedure btnInserirClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnAlterarClick(Sender: TObject);
@@ -42,43 +46,43 @@ type
   end;
 
 var
-  Form1: TForm1;
+  FrmPrincipal: TFrmPrincipal;
 
 implementation
 
 {$R *.dfm}
 
 
-procedure TForm1.btnDeletarClick(Sender: TObject);
+procedure TFrmPrincipal.btnDeletarClick(Sender: TObject);
   var
     IDProduto : Integer;
     Service : TProdutoService;
   begin
     Service := TProdutoService.Create;
     IDProduto := dmPrincipal.qrListaProd.FieldByName('ProdutoID').AsInteger;
-    Service.Deletar(IDProduto, dmPrincipal.FDConnection1);
+    Service.Deletar(IDProduto, dmPrincipal.ConexaoBanco);
     btnLocalizarClick(nil);
   end;
 
-procedure TForm1.btnInfoAdicionalClick(Sender: TObject);
+procedure TFrmPrincipal.btnInfoAdicionalClick(Sender: TObject);
 var
-  frmInfoAdicionais: TForm5;
+  frmInfoAdicionais: TFrmCadastroInfoAdd;
 begin
-  frmInfoAdicionais := TForm5.Create(nil);
+  frmInfoAdicionais := TFrmCadastroInfoAdd.Create(nil);
   frmInfoAdicionais.ShowModal;
 end;
 
-procedure TForm1.btnInserirClick(Sender: TObject);
+procedure TFrmPrincipal.btnInserirClick(Sender: TObject);
   var
-    formCadastro: TForm2;
+    formCadastro: TFrmCadastro;
   begin
-    formCadastro := TForm2.Create(nil);
+    formCadastro := TFrmCadastro.Create(nil);
     formCadastro.ShowModal;
     dmPrincipal.qrListaProd.Refresh;
     btnAlterar.Enabled := False;
   end;
 
-procedure TForm1.btnLocalizarClick(Sender: TObject);
+procedure TFrmPrincipal.btnLocalizarClick(Sender: TObject);
   begin
     dmPrincipal.qrListaProd.Close;
     dmPrincipal.qrListaProd.SQL.Clear;
@@ -163,27 +167,28 @@ procedure TForm1.btnLocalizarClick(Sender: TObject);
     dmPrincipal.qrListaProd.Open;
   end;
 
-procedure TForm1.btnRelatoriosClick(Sender: TObject);
+procedure TFrmPrincipal.btnRelatoriosClick(Sender: TObject);
   var
-    frmRelatorio : TForm6;
+    frmRelatorio : TFrmRelatorios;
 begin
-  frmRelatorio := TForm6.Create(nil);
+  frmRelatorio := TFrmRelatorios.Create(nil);
+  frmRelatorio.cbxRelatorios.ItemIndex := 1;
   frmRelatorio.ShowModal;
 
 end;
 
-procedure TForm1.btnAlterarClick(Sender: TObject);
+procedure TFrmPrincipal.btnAlterarClick(Sender: TObject);
 var
-  formCadastro: TForm2;
+  formCadastro: TFrmCadastro;
 begin
-  formCadastro := TForm2.Create(nil);
+  formCadastro := TFrmCadastro.Create(nil);
   formCadastro.ProdutoIDEdicao := dmPrincipal.qrListaProd.FieldByName('ProdutoID').AsInteger;
   formCadastro.ShowModal;
   dmPrincipal.qrListaProd.Refresh;
   btnAlterar.Enabled := False;
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
+procedure TFrmPrincipal.FormCreate(Sender: TObject);
 begin
   FSQLOriginal := dmPrincipal.qrListaProd.SQL.Text;
   grLista.DataSource.DataSet.Open;
@@ -194,7 +199,7 @@ begin
     end;
 end;
 
-procedure TForm1.grListaCellClick(Column: TColumn);
+procedure TFrmPrincipal.grListaCellClick(Column: TColumn);
 var
   Service : TProdutoService;
   IDProduto : Integer;
@@ -205,24 +210,24 @@ begin
    begin
      btnAlterar.Enabled := True;
    end;
-   if (service.RetornaNumeroMovimentacao(IDProduto, dmPrincipal.FDConnection1) = 0) and (IDProduto > 0) then
+   if (service.RetornaNumeroMovimentacao(IDProduto, dmPrincipal.ConexaoBanco) = 0) and (IDProduto > 0) then
     btnDeletar.Enabled := True
    else
     btnDeletar.Enabled := False;
 end;
 
 
-procedure TForm1.grListaKeyUp(Sender: TObject; var Key: Word;
+procedure TFrmPrincipal.grListaKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   grListaCellClick(nil);
 end;
 
-procedure TForm1.MovimentaçãoClick(Sender: TObject);
+procedure TFrmPrincipal.MovimentaçãoClick(Sender: TObject);
 var
-  formMovimentacao: TForm3;
+  formMovimentacao: TFrmMovimentacao;
 begin
-  formMovimentacao := TForm3.Create(nil);
+  formMovimentacao := TFrmMovimentacao.Create(nil);
   formMovimentacao.show;
 end;
 

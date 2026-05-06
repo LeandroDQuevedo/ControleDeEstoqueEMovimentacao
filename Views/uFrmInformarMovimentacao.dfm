@@ -1,7 +1,7 @@
-object Form4: TForm4
+object FrmInformarMovimentacao: TFrmInformarMovimentacao
   Left = 654
   Top = 187
-  Caption = 'Form4'
+  Caption = 'Informar Movimenta'#231#227'o'
   ClientHeight = 583
   ClientWidth = 624
   Color = clBtnFace
@@ -81,6 +81,7 @@ object Form4: TForm4
       Top = 352
       Width = 121
       Height = 23
+      NumbersOnly = True
       TabOrder = 5
       TextHint = 'Quantidade...'
     end

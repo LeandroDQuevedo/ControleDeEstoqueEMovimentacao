@@ -1,27 +1,24 @@
 object dmPrincipal: TdmPrincipal
   Height = 480
   Width = 640
-  object FDConnection1: TFDConnection
+  object ConexaoBanco: TFDConnection
     Params.Strings = (
-      
-        'Database=C:\Users\leand\Documents\ProjetoDelphi\ProvaSky\Banco d' +
-        'e dados\BANCO.FDB'
+      'DriverID=FB'
       'User_Name=sysdba'
-      'Password=masterkey'
-      'DriverID=FB')
-    Connected = True
+      'Password=masterkey')
+    BeforeConnect = ConexaoBancoBeforeConnect
     Left = 80
     Top = 48
   end
   object qrCategoria: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'select * from Categoria')
     Left = 24
     Top = 424
   end
   object qrMarca: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'select * from Marca'
       '')
@@ -29,14 +26,14 @@ object dmPrincipal: TdmPrincipal
     Top = 424
   end
   object qrFornecedor: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'select * from Fornecedor')
     Left = 160
     Top = 424
   end
   object qrUnidMed: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'select * from Unidade_Medida')
     Left = 240
@@ -63,8 +60,7 @@ object dmPrincipal: TdmPrincipal
     Top = 368
   end
   object qrListaProd: TFDQuery
-    Active = True
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT'
       '  p.NOME AS Produto,'
@@ -210,7 +206,7 @@ object dmPrincipal: TdmPrincipal
     Top = 368
   end
   object qrListaSoProduto: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT NOME AS Produto'
       'FROM Produtos '
@@ -224,7 +220,7 @@ object dmPrincipal: TdmPrincipal
     Top = 368
   end
   object qrListaMov: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT '
       'm.ID,'
@@ -312,7 +308,7 @@ object dmPrincipal: TdmPrincipal
     Top = 368
   end
   object qrRetonaProdMontar: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT'
       'p.ID as IDProduto,'
@@ -705,68 +701,6 @@ object dmPrincipal: TdmPrincipal
     DataSetOptions = []
     Left = 520
     Top = 56
-    FieldDefs = <
-      item
-        FieldName = 'PRODUTO'
-        FieldType = fftString
-        Size = 100
-      end
-      item
-        FieldName = 'CATEGORIA'
-        FieldType = fftString
-        Size = 50
-      end
-      item
-        FieldName = 'QTD'
-      end
-      item
-        FieldName = 'UNID'
-        FieldType = fftString
-      end
-      item
-        FieldName = 'UNIDDESCR'
-        FieldType = fftString
-        Size = 50
-      end
-      item
-        FieldName = 'CUSTO'
-      end
-      item
-        FieldName = 'VENDA'
-      end
-      item
-        FieldName = 'MARCA'
-        FieldType = fftString
-        Size = 50
-      end
-      item
-        FieldName = 'FORNECEDOR'
-        FieldType = fftString
-        Size = 100
-      end
-      item
-        FieldName = 'FORNECEDORENDERECO'
-        FieldType = fftString
-        Size = 200
-      end
-      item
-        FieldName = 'VALOR_EM_ESTOQUE'
-      end
-      item
-        FieldName = 'PRODUTOID'
-      end
-      item
-        FieldName = 'MARCAID'
-      end
-      item
-        FieldName = 'FORNECEDORID'
-      end
-      item
-        FieldName = 'CATEGORIAID'
-      end
-      item
-        FieldName = 'UNIDMEDID'
-      end>
   end
   object RelatorioMovimentacao: TfrxReport
     Tag = 21650
@@ -1436,7 +1370,7 @@ object dmPrincipal: TdmPrincipal
     end
   end
   object qrRelatorioMov: TFDQuery
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT '
       'm.ID,'
@@ -1540,44 +1474,9 @@ object dmPrincipal: TdmPrincipal
     DataSetOptions = []
     Left = 520
     Top = 120
-    FieldDefs = <
-      item
-        FieldName = 'PRODUTO'
-        FieldType = fftString
-        Size = 100
-      end
-      item
-        FieldName = 'DATA'
-        FieldType = fftDateTime
-      end
-      item
-        FieldName = 'TIPO'
-        FieldType = fftString
-      end
-      item
-        FieldName = 'VALOR'
-      end
-      item
-        FieldName = 'QUANTIDADE'
-      end
-      item
-        FieldName = 'TOTAL'
-      end
-      item
-        FieldName = 'DESCRICAO'
-        FieldType = fftString
-        Size = 100
-      end
-      item
-        FieldName = 'ID'
-      end
-      item
-        FieldName = 'ID_PRODUTO'
-      end>
   end
   object qrRelatorioEstoque: TFDQuery
-    Active = True
-    Connection = FDConnection1
+    Connection = ConexaoBanco
     SQL.Strings = (
       'SELECT'
       '  p.NOME AS Produto,'
@@ -1602,7 +1501,8 @@ object dmPrincipal: TdmPrincipal
       'LEFT JOIN MARCA ma ON p.id_marca = ma.id'
       'LEFT JOIN FORNECEDOR f ON p.id_forn = f.id'
       'left JOIN categoria cat on p.id_cat = cat.id'
-      'WHERE p.QUANTIDADE > 0 AND p.ATIVO = '#39'A'#39';')
+      'WHERE p.QUANTIDADE > 0 AND p.ATIVO = '#39'A'#39
+      'ORDER BY p.NOME;')
     Left = 264
     Top = 304
     object StringField4: TStringField
