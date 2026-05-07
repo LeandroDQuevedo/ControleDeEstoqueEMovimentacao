@@ -17,6 +17,7 @@ type
     procedure btnMovimentacaoClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnDeletarMovClick(Sender: TObject);
+    procedure btnRelatorioClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -27,6 +28,8 @@ var
   FrmMovimentacao: TFrmMovimentacao;
 
 implementation
+
+uses  uFrmRelatorios;
 
 {$R *.dfm}
 
@@ -70,6 +73,17 @@ var
 begin
   formInforMovimentacao := TFrmInformarMovimentacao.Create(nil);
   formInforMovimentacao.ShowModal;
+end;
+
+procedure TFrmMovimentacao.btnRelatorioClick(Sender: TObject);
+var
+  FrmRelatorio: TFrmRelatorios;
+begin
+  FrmRelatorio := TFrmRelatorios.Create(nil);
+  FrmRelatorio.cbxRelatorios.ItemIndex := 0;
+  FrmRelatorio.cbxRelatoriosChange(nil);
+  FrmRelatorio.ShowModal;
+
 end;
 
 procedure TFrmMovimentacao.FormCreate(Sender: TObject);

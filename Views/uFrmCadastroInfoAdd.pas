@@ -261,6 +261,8 @@ procedure TFrmCadastroInfoAdd.FormShow(Sender: TObject);
           grListaAdd.DataSource := dmPrincipal.dsFornecedor;
         end;
     end;
+
+    grListaAddCellClick(nil);
   end;
 procedure TFrmCadastroInfoAdd.grListaAddCellClick(Column: TColumn);
   var

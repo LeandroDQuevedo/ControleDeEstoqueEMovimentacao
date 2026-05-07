@@ -8,7 +8,9 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.VCLUI.Wait,
   FireDAC.Comp.Client, Data.DB, FireDAC.Phys.FB, FireDAC.Phys.FBDef, Vcl.Forms, System.UITypes,
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt, System.IniFiles,
-  FireDAC.Comp.DataSet, frCoreClasses, frxClass, frxDBSet, frxSmartMemo, ufrmConfigBanco;
+  FireDAC.Comp.DataSet, frCoreClasses, frxClass, frxDBSet, frxSmartMemo, ufrmConfigBanco,
+  System.ImageList, Vcl.ImgList, Vcl.VirtualImageList, Vcl.BaseImageCollection,
+  Vcl.ImageCollection;
 
 type
   TdmPrincipal = class(TDataModule)
@@ -84,6 +86,8 @@ type
     IntegerField5: TIntegerField;
     IntegerField6: TIntegerField;
     IntegerField7: TIntegerField;
+    BancoImanges: TImageCollection;
+    ListaImagens: TVirtualImageList;
     procedure ConexaoBancoBeforeConnect(Sender: TObject);
   private
     { Private declarations }

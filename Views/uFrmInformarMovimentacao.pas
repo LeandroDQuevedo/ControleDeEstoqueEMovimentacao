@@ -10,7 +10,7 @@ uses
 
 type
   TFrmInformarMovimentacao = class(TForm)
-    Panel1: TPanel;
+    pnCampos: TPanel;
     pnListaMov: TPanel;
     btnAdicionarMov: TButton;
     btnSalvar: TButton;
@@ -63,9 +63,17 @@ var
   Service : TProdutoService;
 begin
 
+
+
   if cbxProduto.ItemIndex = -1 then
   begin
     ShowMessage('Por favor, selecione um produto primeiro.');
+    Exit;
+  end;
+
+  if trim(edtQntd.Text) = '0' then
+  begin
+    ShowMessage('A quantidade informada deve ser maior que 0.');
     Exit;
   end;
 
@@ -234,5 +242,6 @@ procedure TFrmInformarMovimentacao.FormDestroy(Sender: TObject);
 begin
   ListaMovimentacoes.Free;
 end;
+
 
 end.

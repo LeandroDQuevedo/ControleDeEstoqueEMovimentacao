@@ -18,6 +18,7 @@ type
     lbFinal: TLabel;
     lbTitulo1: TLabel;
     btnGerar: TButton;
+    pnPrincipal: TPanel;
     procedure cbxRelatoriosChange(Sender: TObject);
     procedure btnGerarClick(Sender: TObject);
   private

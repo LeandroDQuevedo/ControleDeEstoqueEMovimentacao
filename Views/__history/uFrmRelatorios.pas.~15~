@@ -1,0 +1,78 @@
+unit uFrmRelatorios;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Menus, uFrmCadastro, uDM, uFrmMovimentacao,
+  Vcl.DBCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, uService.Produto, uFrmCadastroInfoAdd, FireDAC.Comp.Client,
+  Vcl.Mask;
+
+type
+  TFrmRelatorios = class(TForm)
+    edtData: TMaskEdit;
+    edtDataFinal: TMaskEdit;
+    cbxRelatorios: TComboBox;
+    lbTitulo2: TLabel;
+    lbInicial: TLabel;
+    lbFinal: TLabel;
+    lbTitulo1: TLabel;
+    btnGerar: TButton;
+    procedure cbxRelatoriosChange(Sender: TObject);
+    procedure btnGerarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  FrmRelatorios: TFrmRelatorios;
+
+implementation
+
+{$R *.dfm}
+
+
+
+procedure TFrmRelatorios.btnGerarClick(Sender: TObject);
+begin
+  
+  
+  if cbxRelatorios.ItemIndex = 0 then
+    begin
+      dmPrincipal.qrRelatorioMov.Close;
+      dmPrincipal.qrRelatorioMov.ParamByName('DATA_INI').AsDate := StrToDate(edtData.Text);
+      dmPrincipal.qrRelatorioMov.ParamByName('DATA_FIM').AsDate := StrToDate(edtDataFinal.Text);
+      dmPrincipal.qrRelatorioMov.Open;
+      
+      dmPrincipal.RelatorioMovimentacao.Variables.Variables['DataInicio'] := QuotedStr(edtData.Text); 
+      dmPrincipal.RelatorioMovimentacao.Variables.Variables['DataFinal'] := QuotedStr(edtDataFinal.Text);
+      dmPrincipal.RelatorioMovimentacao.ShowReport();
+    end
+  else
+    dmPrincipal.RelatorioEstoque.ShowReport();
+end;
+
+procedure TFrmRelatorios.cbxRelatoriosChange(Sender: TObject);
+begin
+  if cbxRelatorios.ItemIndex = 1 then
+    begin
+      edtData.Visible := False;
+      edtDataFinal.Visible := False;
+      lbInicial.Visible := False;
+      lbFinal.Visible := False;
+      lbTitulo2.Visible := False;
+    end
+  else
+    begin
+      edtData.Visible := True;
+      edtDataFinal.Visible := True;
+      lbInicial.Visible := True;
+      lbFinal.Visible := True;
+      lbTitulo2.Visible := True;
+    end
+
+end;
+
+end.
