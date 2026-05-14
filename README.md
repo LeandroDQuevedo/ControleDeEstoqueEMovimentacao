@@ -21,7 +21,7 @@ Este projeto é um sistema de gerenciamento de estoque robusto, desenvolvido em 
 ## 🛠️ Tecnologias Utilizadas
 
 *   **IDE:** Delphi (VCL)
-*   **Banco de Dados:** Firebird 3.0+
+*   **Banco de Dados:** Firebird 2.5
 *   **Gerenciador de Banco:** IBExpert
 *   **Componentes de Acesso:** FireDAC
 *   **Relatórios:** FastReport
